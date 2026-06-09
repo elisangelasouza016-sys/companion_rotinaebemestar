@@ -64,4 +64,49 @@ prompt_template = ChatPromptTemplate.from_messages([
 chain = prompt_template | llm
 
 # 6. Gerenciamento de Memória Persistente do LangChain + Streamlit
-msgs = StreamlitChatMessageHistory(key="langchain_messages
+# CORREÇÃO DA LINHA 67: String fechada corretamente com aspas e parêntese
+msgs = StreamlitChatMessageHistory(key="langchain_messages")
+
+# Caso o histórico esteja vazio, adiciona a mensagem inicial de acolhimento
+if len(msgs.messages) == 0:
+    msgs.add_ai_message("Olá! Sou o seu Companion. Como foi o seu sono hoje e como está o seu nível de energia?")
+
+# Envelopando a nossa chain para gerenciar automaticamente a persistência do histórico
+chain_with_history = RunnableWithMessageHistory(
+    chain,
+    lambda session_id: msgs, 
+    input_messages_key="input",
+    history_messages_key="history"
+)
+
+# 7. Configuração da Barra Lateral
+st.sidebar.title("Configurações")
+st.sidebar.write("Modelo: Zephyr-7B-Chat")
+st.sidebar.write("Framework: LangChain LCEL")
+
+limpar_conversa = st.sidebar.button("🧹 Limpar Histórico")
+
+if limpar_conversa:
+    msgs.clear()
+    msgs.add_ai_message("Olá! Sou o seu Companion. Como foi o seu sono hoje e como está o seu nível de energia?")
+    st.rerun()
+
+# 8. Renderização da Interface do Chat
+for msg in msgs.messages:
+    role = "user" if msg.type == "human" else "assistant"
+    with st.chat_message(role):
+        st.write(msg.content)
+
+# 9. Fluxo de Entrada do Usuário e Resposta da IA em Tempo Real
+if user_input := st.chat_input("Converse com o Companion..."):
+    # Exibe imediatamente a mensagem digitada pelo usuário
+    with st.chat_message("user"):
+        st.write(user_input)
+    
+    # Chama a execução da corrente persistente do LangChain
+    with st.chat_message("assistant"):
+        with st.spinner("Pensando com cuidado..."):
+            config = {"configurable": {"session_id": "companion_session"}}
+            response = chain_with_history.invoke({"input": user_input}, config=config)
+            answer_text = response.content
+            st.write(answer_text)
