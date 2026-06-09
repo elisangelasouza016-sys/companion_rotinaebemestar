@@ -30,7 +30,7 @@ if not hf_token:
 
 # 3. Definição do Modelo Especializado (Homologando o Qwen 2.5)
 # Parâmetros de exploração exigidos pela atividade: Temperatura estável e limite de novos tokens
-MODEL_ID = "Qwen/Qwen2.5-72B-Instruct"
+MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.3""
 
 llm = HuggingFaceEndpoint(
     repo_id=MODEL_ID,
