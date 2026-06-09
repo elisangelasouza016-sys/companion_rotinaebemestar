@@ -29,7 +29,8 @@ if not hf_token:
     st.stop()
 
 # 3. Definição do Modelo e Adaptação para Tarefa Conversational
-MODEL_ID = "HuggingFaceH4/zephyr-7b-beta"
+# Alterado para o Qwen2.5-Coder-7B-Instruct, ativamente suportado pelos provedores do Hub
+MODEL_ID = "Qwen/Qwen2.5-Coder-7B-Instruct"
 
 # Criação do endpoint base
 raw_llm = HuggingFaceEndpoint(
@@ -39,7 +40,7 @@ raw_llm = HuggingFaceEndpoint(
     max_new_tokens=350,
 )
 
-# Wrapper para o modelo de Chat
+# Wrapper para o modelo de Chat (Resolve o mapeamento de tarefas do provedor)
 llm = ChatHuggingFace(llm=raw_llm)
 
 # 4. Engenharia de Prompt e Definição da Especialidade (System Message)
@@ -64,7 +65,6 @@ prompt_template = ChatPromptTemplate.from_messages([
 chain = prompt_template | llm
 
 # 6. Gerenciamento de Memória Persistente do LangChain + Streamlit
-# CORREÇÃO DA LINHA 67: String fechada corretamente com aspas e parêntese
 msgs = StreamlitChatMessageHistory(key="langchain_messages")
 
 # Caso o histórico esteja vazio, adiciona a mensagem inicial de acolhimento
@@ -81,7 +81,7 @@ chain_with_history = RunnableWithMessageHistory(
 
 # 7. Configuração da Barra Lateral
 st.sidebar.title("Configurações")
-st.sidebar.write("Modelo: Zephyr-7B-Chat")
+st.sidebar.write("Modelo: Qwen-2.5-7B")
 st.sidebar.write("Framework: LangChain LCEL")
 
 limpar_conversa = st.sidebar.button("🧹 Limpar Histórico")
